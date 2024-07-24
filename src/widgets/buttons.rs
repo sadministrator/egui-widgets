@@ -141,7 +141,6 @@ impl Widget for GephButton {
     fn ui(self, ui: &mut Ui) -> egui::Response {
         let widget_text = WidgetText::from(self.text.clone());
         let text_color = self.text_color();
-        let fill_color = self.fill_color();
         let stroke_color = self.stroke_color();
 
         let button_padding = match self.size {
@@ -178,9 +177,12 @@ impl Widget for GephButton {
 
         let (rect, mut response) = ui.allocate_at_least(desired_size, egui::Sense::click());
 
-        if response.clicked() {
+        let (rect, fill_color) = if response.clicked() {
             response.mark_changed();
-        }
+            (rect.shrink(2.0), self.fill_color().linear_multiply(0.85))
+        } else {
+            (rect, self.fill_color())
+        };
 
         if ui.is_rect_visible(rect) {
             let visuals = ui.style().interact(&response);

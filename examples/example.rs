@@ -23,7 +23,7 @@ impl ExampleApp {
     fn new(ctx: &egui::Context, on: &mut bool) -> Self {
         // egui_extras::install_image_loaders(ctx);
         ctx.style_mut(|style| {
-            // style.spacing.item_spacing = egui::vec2(8.0, 8.0);
+            style.spacing.item_spacing = egui::vec2(8.0, 8.0);
             style.visuals = Visuals::light();
         });
         ctx.set_zoom_factor(1.1);
