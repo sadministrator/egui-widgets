@@ -149,7 +149,7 @@ impl Widget for GephButton {
                 ui.spacing().button_padding.x * 1.5,
                 ui.spacing().button_padding.y * 0.75,
             ),
-            ButtonSize::Large => ui.spacing().button_padding * 5.0,
+            ButtonSize::Large => ui.spacing().button_padding * 4.0,
         };
         let text_wrap_width = ui.available_width() - 2.0 * button_padding.x;
         let text_style = match self.size {

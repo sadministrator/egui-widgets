@@ -4,19 +4,23 @@ use egui::{self, Visuals};
 use widgets::*;
 
 fn main() {
-    // let ctx: egui::Context = egui::Context::default();
+    let mut switch_on = false;
     let options = eframe::NativeOptions::default();
+    let mut cell: Option<ExampleApp> = None;
 
     eframe::run_simple_native("Widgets", options, move |ctx, frame| {
-        ExampleApp::new(ctx).update(ctx, frame)
+        let app = cell.get_or_insert_with(|| ExampleApp::new(ctx, &mut switch_on));
+        app.update(ctx, frame)
     })
     .unwrap();
 }
 
-struct ExampleApp {}
+struct ExampleApp {
+    switch_on: bool,
+}
 
 impl ExampleApp {
-    fn new(ctx: &egui::Context) -> Self {
+    fn new(ctx: &egui::Context, on: &mut bool) -> Self {
         // egui_extras::install_image_loaders(ctx);
         ctx.style_mut(|style| {
             // style.spacing.item_spacing = egui::vec2(8.0, 8.0);
@@ -24,7 +28,7 @@ impl ExampleApp {
         });
         ctx.set_zoom_factor(1.1);
 
-        Self {}
+        Self { switch_on: *on }
     }
 }
 
@@ -55,6 +59,8 @@ impl eframe::App for ExampleApp {
                 GephButton::black("Change location".to_string(), ButtonSize::Large).invert(true),
             );
             ui.add(GephButton::green("Hello world".to_string(), ButtonSize::Small).invert(true));
+
+            ui.add(Switch::new(&mut self.switch_on));
         });
     }
 }
