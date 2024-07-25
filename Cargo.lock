@@ -931,6 +931,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "egui-material-icons"
+version = "0.1.0"
+source = "git+https://github.com/lucasmerlin/egui-material-icons#f7a196f8189cdcf04d713d71972863f8a406c9d9"
+dependencies = [
+ "egui",
+ "material-icons-proc-macro",
+]
+
+[[package]]
 name = "egui-wgpu"
 version = "0.28.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1656,6 +1665,11 @@ checksum = "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "material-icons-proc-macro"
+version = "0.1.0"
+source = "git+https://github.com/lucasmerlin/egui-material-icons#f7a196f8189cdcf04d713d71972863f8a406c9d9"
 
 [[package]]
 name = "memchr"
@@ -3156,6 +3170,7 @@ version = "0.1.0"
 dependencies = [
  "eframe",
  "egui",
+ "egui-material-icons",
 ]
 
 [[package]]

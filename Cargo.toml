@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 eframe = "0.28.1"
 egui = "0.28.1"
+egui-material-icons = { git = "https://github.com/lucasmerlin/egui-material-icons" }
 
 [[example]]
 name = "example"
