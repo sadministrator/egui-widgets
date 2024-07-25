@@ -1,5 +1,5 @@
 use eframe::App;
-use egui::{self, Visuals};
+use egui::{self, Layout, Margin, Visuals};
 use egui_material_icons::icons::*;
 
 use widgets::*;
@@ -50,32 +50,96 @@ impl eframe::App for ExampleApp {
                 &mut self.tab_idx,
             ));
 
-            ui.add(GephButton::primary(
-                "Log in with existing account".to_string(),
-                ButtonSize::Large,
-            ));
-            ui.add(GephButton::secondary(
-                "Hello world".to_string(),
-                ButtonSize::Small,
-            ));
-            ui.add(GephButton::warning("Delete".to_string(), ButtonSize::Large));
-            ui.add(GephButton::black(
-                "Hello world".to_string(),
-                ButtonSize::Small,
-            ));
-            ui.add(GephButton::green("Connect".to_string(), ButtonSize::Large));
+            match self.tab_idx {
+                0 => {
+                    ui.add(GephButton::primary(
+                        "Log in with existing account".to_string(),
+                        ButtonSize::Large,
+                    ));
+                    ui.add(GephButton::secondary(
+                        "Hello world".to_string(),
+                        ButtonSize::Small,
+                    ));
+                    ui.add(GephButton::warning("Delete".to_string(), ButtonSize::Large));
+                    ui.add(GephButton::black(
+                        "Hello world".to_string(),
+                        ButtonSize::Small,
+                    ));
+                    ui.add(GephButton::green("Connect".to_string(), ButtonSize::Large));
 
-            ui.add(GephButton::primary("Buy Plus!".to_string(), ButtonSize::Large).invert(true));
-            ui.add(
-                GephButton::secondary("Hello world".to_string(), ButtonSize::Small).invert(true),
-            );
-            ui.add(GephButton::warning("Log out".to_string(), ButtonSize::Large).invert(true));
-            ui.add(
-                GephButton::black("Change location".to_string(), ButtonSize::Large).invert(true),
-            );
-            ui.add(GephButton::green("Hello world".to_string(), ButtonSize::Small).invert(true));
+                    ui.add(
+                        GephButton::primary("Buy Plus!".to_string(), ButtonSize::Large)
+                            .invert(true),
+                    );
+                    ui.add(
+                        GephButton::secondary("Hello world".to_string(), ButtonSize::Small)
+                            .invert(true),
+                    );
+                    ui.add(
+                        GephButton::warning("Log out".to_string(), ButtonSize::Large).invert(true),
+                    );
+                    ui.add(
+                        GephButton::black("Change location".to_string(), ButtonSize::Large)
+                            .invert(true),
+                    );
+                    ui.add(
+                        GephButton::green("Hello world".to_string(), ButtonSize::Small)
+                            .invert(true),
+                    );
 
-            ui.add(Switch::new(&mut self.switch_on));
+                    ui.add(Switch::new(&mut self.switch_on));
+                }
+                1 => {
+                    ui.add(Card::new(|ui| {
+                        ui.spacing_mut().item_spacing = egui::vec2(0.0, 8.0);
+
+                        ui.style_mut().override_text_style = Some(egui::TextStyle::Body);
+                        ui.style_mut().spacing.icon_width = 24.0;
+                        ui.style_mut().spacing.icon_spacing = 8.0;
+
+                        ui.horizontal(|ui| {
+                            ui.label(egui::RichText::new(ICON_DOWNLOAD).size(20.0));
+                            ui.label(" Download");
+                            ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
+                                ui.label(egui::RichText::new("- MB").color(egui::Color32::GRAY));
+                            });
+                        });
+
+                        ui.horizontal(|ui| {
+                            ui.label(egui::RichText::new(ICON_UPLOAD).size(20.0));
+                            ui.label(" Upload");
+                            ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
+                                ui.label(egui::RichText::new("- MB").color(egui::Color32::GRAY));
+                            });
+                        });
+
+                        ui.horizontal(|ui| {
+                            ui.label(egui::RichText::new(ICON_SWAP_VERT).size(20.0));
+                            ui.label(" Latency");
+                            ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
+                                ui.label(egui::RichText::new("- ms").color(egui::Color32::GRAY));
+                            });
+                        });
+
+                        ui.horizontal(|ui| {
+                            ui.label(egui::RichText::new(ICON_COMPUTER).size(20.0));
+                            ui.label(" Via");
+                            ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
+                                ui.label(egui::RichText::new("-").color(egui::Color32::GRAY));
+                            });
+                        });
+
+                        ui.horizontal(|ui| {
+                            ui.label(egui::RichText::new(ICON_RADIO).size(20.0));
+                            ui.label(" Protocol");
+                            ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
+                                ui.label(egui::RichText::new("-").color(egui::Color32::GRAY));
+                            });
+                        });
+                    }));
+                }
+                _ => {}
+            }
         });
     }
 }
