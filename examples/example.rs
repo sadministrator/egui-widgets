@@ -1,28 +1,31 @@
 use eframe::App;
-use egui::{self, Layout, Margin, Visuals};
+use egui::{self, Layout, Ui, Visuals};
 use egui_material_icons::icons::*;
 
 use widgets::*;
 
 fn main() {
     let mut switch_on = false;
+    let mut settings_on = false;
     let options = eframe::NativeOptions::default();
     let mut cell: Option<ExampleApp> = None;
 
     eframe::run_simple_native("Widgets", options, move |ctx, frame| {
-        let app = cell.get_or_insert_with(|| ExampleApp::new(ctx, &mut switch_on));
+        let app =
+            cell.get_or_insert_with(|| ExampleApp::new(ctx, &mut switch_on, &mut settings_on));
         app.update(ctx, frame)
     })
     .unwrap();
 }
 
 struct ExampleApp {
-    switch_on: bool,
     tab_idx: usize,
+    switch_on: bool,
+    settings_on: bool,
 }
 
 impl ExampleApp {
-    fn new(ctx: &egui::Context, on: &mut bool) -> Self {
+    fn new(ctx: &egui::Context, switch_on: &mut bool, settings_on: &mut bool) -> Self {
         egui_material_icons::initialize(ctx);
 
         ctx.style_mut(|style| {
@@ -32,8 +35,9 @@ impl ExampleApp {
         ctx.set_zoom_factor(1.1);
 
         Self {
-            switch_on: *on,
             tab_idx: 0,
+            switch_on: *switch_on,
+            settings_on: *settings_on,
         }
     }
 }
@@ -138,7 +142,18 @@ impl eframe::App for ExampleApp {
                         });
                     }));
                 }
-                _ => {}
+                2 => {
+                    ui.add(Card::new(|ui| {
+                        ui.add(SettingsLine::new(
+                            ICON_LAN.to_string(),
+                            String::from("Listen on all interfaces"),
+                            Box::new(|ui: &mut Ui| {
+                                ui.add(Switch::new(&mut self.settings_on));
+                            }),
+                        ));
+                    }));
+                }
+                _ => (),
             }
         });
     }
