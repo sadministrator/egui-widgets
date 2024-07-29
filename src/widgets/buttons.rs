@@ -250,18 +250,23 @@ impl Widget for Button {
 
         let (rect, mut response) = ui.allocate_at_least(desired_size, egui::Sense::click());
 
-        let (rect, fill_color) = if response.clicked() && !self.disabled {
-            response.mark_changed();
-            (
-                rect.shrink(2.0),
-                self.style.fill_color.linear_multiply(0.85),
-            )
-        } else {
-            (rect, self.style.fill_color)
-        };
-
         if ui.is_rect_visible(rect) {
+            let opacity_factor = 0.75;
             let style = self.current_style(response.hovered());
+            let (fill_color, stroke, text_color) =
+                if response.is_pointer_button_down_on() && !self.disabled {
+                    response.mark_changed();
+                    (
+                        style.fill_color.linear_multiply(opacity_factor),
+                        Stroke::new(
+                            style.stroke.width,
+                            style.stroke.color.linear_multiply(opacity_factor),
+                        ),
+                        style.text_color.linear_multiply(opacity_factor),
+                    )
+                } else {
+                    (self.style.fill_color, style.stroke, style.text_color)
+                };
             let rect = if response.hovered() && !self.disabled {
                 ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                 rect.expand(1.0)
@@ -270,12 +275,12 @@ impl Widget for Button {
             };
             let rounding = Rounding::same(4.0);
 
-            ui.painter().rect(rect, rounding, fill_color, style.stroke);
+            ui.painter().rect(rect, rounding, fill_color, stroke);
 
             let cursor_x = rect.min.x + button_padding.x;
             let text_pos = pos2(cursor_x, rect.center().y - 0.5 * galley.size().y);
 
-            ui.painter().galley(text_pos, galley, self.style.text_color);
+            ui.painter().galley(text_pos, galley, text_color);
         }
 
         response
