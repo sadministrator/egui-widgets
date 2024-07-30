@@ -8,23 +8,23 @@ use widgets::*;
 
 fn main() {
     let options = eframe::NativeOptions::default();
-    let mut cell: Option<ExampleApp> = None;
+    let mut cell: Option<Demo> = None;
 
     eframe::run_simple_native("Widgets", options, move |ctx, frame| {
-        let app = cell.get_or_insert_with(|| ExampleApp::new(ctx));
+        let app = cell.get_or_insert_with(|| Demo::new(ctx));
         app.update(ctx, frame)
     })
     .unwrap();
 }
 
-struct ExampleApp {
+struct Demo {
     tab_idx: usize,
     switch_on: bool,
     settings_on: bool,
     selected: String,
 }
 
-impl ExampleApp {
+impl Demo {
     fn new(ctx: &Context) -> Self {
         egui_material_icons::initialize(ctx);
 
@@ -43,7 +43,7 @@ impl ExampleApp {
     }
 }
 
-impl eframe::App for ExampleApp {
+impl eframe::App for Demo {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         CentralPanel::default().show(ctx, |ui| {
             ui.add(TabBar::new(
