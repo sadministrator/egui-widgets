@@ -63,7 +63,7 @@ impl Button {
         let variant = ButtonVariant::Primary;
         let inverted = false;
         let disabled = false;
-        let style = default_style(variant, inverted, disabled);
+        let style = derive_style(&variant, inverted, disabled);
 
         Self {
             text,
@@ -81,7 +81,7 @@ impl Button {
         let variant = ButtonVariant::Secondary;
         let inverted = false;
         let disabled = false;
-        let style = default_style(variant, inverted, disabled);
+        let style = derive_style(&variant, inverted, disabled);
 
         Self {
             text,
@@ -99,7 +99,7 @@ impl Button {
         let variant = ButtonVariant::Warning;
         let inverted = false;
         let disabled = false;
-        let style = default_style(variant, inverted, disabled);
+        let style = derive_style(&variant, inverted, disabled);
 
         Self {
             text,
@@ -117,7 +117,7 @@ impl Button {
         let variant = ButtonVariant::Black;
         let inverted = false;
         let disabled = false;
-        let style = default_style(variant, inverted, disabled);
+        let style = derive_style(&variant, inverted, disabled);
 
         Self {
             text,
@@ -135,7 +135,7 @@ impl Button {
         let variant = ButtonVariant::Green;
         let inverted = false;
         let disabled = false;
-        let style = default_style(variant, inverted, disabled);
+        let style = derive_style(&variant, inverted, disabled);
 
         Self {
             text,
@@ -156,7 +156,7 @@ impl Button {
         inverted: bool,
         disabled: bool,
     ) -> Self {
-        let style = default_style(variant, inverted, disabled);
+        let style = derive_style(&variant, inverted, disabled);
 
         Self {
             text,
@@ -172,13 +172,13 @@ impl Button {
 
     pub fn invert(mut self, invert: bool) -> Self {
         self.inverted = invert;
-        self.style = default_style(self.variant, self.inverted, self.disabled);
+        self.style = derive_style(&self.variant, self.inverted, self.disabled);
         self
     }
 
     pub fn disable(mut self, disable: bool) -> Self {
         self.disabled = disable;
-        self.style = default_style(self.variant, self.inverted, self.disabled);
+        self.style = derive_style(&self.variant, self.inverted, self.disabled);
         self
     }
 
@@ -215,7 +215,6 @@ impl Button {
 
 impl Widget for Button {
     fn ui(self, ui: &mut Ui) -> Response {
-        let widget_text = WidgetText::from(self.text.clone());
         let button_padding = match self.size {
             ButtonSize::Small => Vec2::new(
                 ui.spacing().button_padding.x * 1.5,
@@ -228,13 +227,13 @@ impl Widget for Button {
             ButtonSize::Small => TextStyle::Button,
             ButtonSize::Large => TextStyle::Heading,
         };
+        let widget_text = WidgetText::from(self.text.clone());
         let galley = widget_text.into_galley(
             ui,
             Some(egui::TextWrapMode::Extend),
             text_wrap_width,
             text_style,
         );
-
         let min_size = ui.spacing().interact_size;
         let mut desired_size = Vec2::ZERO;
         desired_size.x += galley.size().x;
@@ -252,28 +251,37 @@ impl Widget for Button {
 
         if ui.is_rect_visible(rect) {
             let opacity_factor = 0.75;
-            let style = self.current_style(response.hovered());
-            let (fill_color, stroke, text_color) =
-                if response.is_pointer_button_down_on() && !self.disabled {
-                    response.mark_changed();
-                    (
-                        style.fill_color.linear_multiply(opacity_factor),
-                        Stroke::new(
-                            style.stroke.width,
-                            style.stroke.color.linear_multiply(opacity_factor),
-                        ),
-                        style.text_color.linear_multiply(opacity_factor),
-                    )
-                } else {
-                    (self.style.fill_color, style.stroke, style.text_color)
-                };
+            let rounding = Rounding::same(4.0);
+            let current_style = self.current_style(response.hovered());
             let rect = if response.hovered() && !self.disabled {
                 ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
                 rect.expand(1.0)
             } else {
                 rect
             };
-            let rounding = Rounding::same(4.0);
+
+            let ButtonStyle {
+                fill_color,
+                stroke,
+                text_color,
+            } = if response.is_pointer_button_down_on() && !self.disabled {
+                response.mark_changed();
+
+                ButtonStyle::new(
+                    current_style.fill_color.linear_multiply(opacity_factor),
+                    Stroke::new(
+                        current_style.stroke.width,
+                        current_style.stroke.color.linear_multiply(opacity_factor),
+                    ),
+                    current_style.text_color.linear_multiply(opacity_factor),
+                )
+            } else {
+                ButtonStyle::new(
+                    current_style.fill_color,
+                    current_style.stroke,
+                    current_style.text_color,
+                )
+            };
 
             ui.painter().rect(rect, rounding, fill_color, stroke);
 
@@ -287,7 +295,7 @@ impl Widget for Button {
     }
 }
 
-fn default_fill_color(variant: ButtonVariant, inverted: bool, disabled: bool) -> Color32 {
+fn derive_fill_color(variant: &ButtonVariant, inverted: bool, disabled: bool) -> Color32 {
     if inverted {
         Color32::TRANSPARENT
     } else {
@@ -299,16 +307,24 @@ fn default_fill_color(variant: ButtonVariant, inverted: bool, disabled: bool) ->
     }
 }
 
-fn default_stroke(inverted: bool, variant: ButtonVariant) -> Stroke {
+fn derive_stroke(variant: &ButtonVariant, inverted: bool, disabled: bool) -> Stroke {
     let width = 1.0;
+    let mut stroke;
+
     if inverted {
-        Stroke::new(width, variant.color())
+        stroke = Stroke::new(width, variant.color())
     } else {
-        Stroke::new(width, Color32::WHITE)
+        stroke = Stroke::new(width, Color32::WHITE)
     }
+
+    if disabled {
+        stroke.color = disable_color(stroke.color);
+    }
+
+    stroke
 }
 
-fn default_text_color(variant: ButtonVariant, inverted: bool, disabled: bool) -> Color32 {
+fn derive_text_color(variant: &ButtonVariant, inverted: bool, disabled: bool) -> Color32 {
     let mut color = if inverted {
         variant.color()
     } else {
@@ -326,10 +342,10 @@ fn disable_color(color: Color32) -> Color32 {
     color.linear_multiply(0.5)
 }
 
-fn default_style(variant: ButtonVariant, inverted: bool, disabled: bool) -> ButtonStyle {
+fn derive_style(variant: &ButtonVariant, inverted: bool, disabled: bool) -> ButtonStyle {
     ButtonStyle {
-        fill_color: default_fill_color(variant.clone(), inverted, disabled),
-        stroke: default_stroke(inverted, variant),
-        text_color: default_text_color(variant, inverted, disabled),
+        fill_color: derive_fill_color(&variant, inverted, disabled),
+        stroke: derive_stroke(&variant, inverted, disabled),
+        text_color: derive_text_color(&variant, inverted, disabled),
     }
 }

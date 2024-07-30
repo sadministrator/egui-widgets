@@ -7,14 +7,11 @@ use egui_material_icons::icons::*;
 use widgets::*;
 
 fn main() {
-    let mut switch_on = false;
-    let mut settings_on = false;
     let options = eframe::NativeOptions::default();
     let mut cell: Option<ExampleApp> = None;
 
     eframe::run_simple_native("Widgets", options, move |ctx, frame| {
-        let app =
-            cell.get_or_insert_with(|| ExampleApp::new(ctx, &mut switch_on, &mut settings_on));
+        let app = cell.get_or_insert_with(|| ExampleApp::new(ctx));
         app.update(ctx, frame)
     })
     .unwrap();
@@ -28,7 +25,7 @@ struct ExampleApp {
 }
 
 impl ExampleApp {
-    fn new(ctx: &Context, switch_on: &mut bool, settings_on: &mut bool) -> Self {
+    fn new(ctx: &Context) -> Self {
         egui_material_icons::initialize(ctx);
 
         ctx.style_mut(|style| {
@@ -39,8 +36,8 @@ impl ExampleApp {
 
         Self {
             tab_idx: 0,
-            switch_on: *switch_on,
-            settings_on: *settings_on,
+            switch_on: false,
+            settings_on: false,
             selected: String::new(),
         }
     }
