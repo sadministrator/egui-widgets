@@ -6,6 +6,13 @@ use egui_material_icons::icons::*;
 
 use widgets::*;
 
+#[derive(Clone, PartialEq)]
+enum TabName {
+    Dashboard,
+    Logs,
+    Settings,
+}
+
 fn main() {
     let options = eframe::NativeOptions::default();
     let mut cell: Option<Demo> = None;
@@ -18,7 +25,7 @@ fn main() {
 }
 
 struct Demo {
-    tab_idx: usize,
+    tab: TabName,
     switch_on: bool,
     settings_on: bool,
     selected: String,
@@ -35,7 +42,7 @@ impl Demo {
         ctx.set_zoom_factor(1.1);
 
         Self {
-            tab_idx: 0,
+            tab: TabName::Dashboard,
             switch_on: false,
             settings_on: false,
             selected: String::new(),
@@ -46,17 +53,30 @@ impl Demo {
 impl eframe::App for Demo {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         CentralPanel::default().show(ctx, |ui| {
-            ui.add(TabBar::new(
+            TabBar::new(
+                "tab_bar",
                 vec![
-                    TabBarItem::new(String::from("Dashboard"), ICON_DASHBOARD.to_string()),
-                    TabBarItem::new(String::from("Logs"), ICON_DESCRIPTION.to_string()),
-                    TabBarItem::new(String::from("Settings"), ICON_SETTINGS.to_string()),
+                    TabBarItem::new(
+                        TabName::Dashboard,
+                        String::from("Dashboard"),
+                        ICON_DASHBOARD.to_string(),
+                    ),
+                    TabBarItem::new(
+                        TabName::Logs,
+                        String::from("Logs"),
+                        ICON_DESCRIPTION.to_string(),
+                    ),
+                    TabBarItem::new(
+                        TabName::Settings,
+                        String::from("Settings"),
+                        ICON_SETTINGS.to_string(),
+                    ),
                 ],
-                &mut self.tab_idx,
-            ));
+            )
+            .show(ctx, &mut self.tab);
 
-            match self.tab_idx {
-                0 => {
+            match self.tab {
+                TabName::Dashboard => {
                     ui.add(Button::primary(
                         "Log in with existing account".to_string(),
                         ButtonSize::Large,
@@ -86,7 +106,7 @@ impl eframe::App for Demo {
 
                     ui.add(Switch::new(&mut self.switch_on));
                 }
-                1 => {
+                TabName::Logs => {
                     ui.add(Card::new(|ui| {
                         let text_size = 16.0;
                         ui.spacing_mut().item_spacing = vec2(0.0, 8.0);
@@ -142,7 +162,7 @@ impl eframe::App for Demo {
                         });
                     }));
                 }
-                2 => {
+                TabName::Settings => {
                     ui.add(Card::new(|ui| {
                         ui.add(SettingsLine::new(
                             ICON_LAN.to_string(),
@@ -171,7 +191,6 @@ impl eframe::App for Demo {
                         ));
                     }));
                 }
-                _ => (),
             }
         });
     }
