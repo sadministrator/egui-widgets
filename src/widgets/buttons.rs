@@ -247,7 +247,7 @@ impl Widget for Button {
             }
         };
 
-        let (rect, mut response) = ui.allocate_at_least(desired_size, egui::Sense::click());
+        let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click());
 
         if ui.is_rect_visible(rect) {
             let opacity_factor = 0.75;
@@ -285,8 +285,7 @@ impl Widget for Button {
 
             ui.painter().rect(rect, rounding, fill_color, stroke);
 
-            let cursor_x = rect.min.x + button_padding.x;
-            let text_pos = pos2(cursor_x, rect.center().y - 0.5 * galley.size().y);
+            let text_pos = rect.center() - galley.size() / 2.0;
 
             ui.painter().galley(text_pos, galley, text_color);
         }
