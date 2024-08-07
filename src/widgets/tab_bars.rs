@@ -13,11 +13,11 @@ pub struct TabBarItem<T: PartialEq + Clone> {
 }
 
 impl<T: PartialEq + Clone> TabBar<T> {
-    pub fn new(id: impl Into<egui::Id>, tabs: Vec<TabBarItem<T>>) -> Self {
+    pub fn new(id: impl Into<egui::Id>, tabs: Vec<TabBarItem<T>>, height: f32) -> Self {
         TabBar {
             tabs,
             id: id.into(),
-            height: 48.0,
+            height,
         }
     }
 
@@ -28,7 +28,7 @@ impl<T: PartialEq + Clone> TabBar<T> {
 
     pub fn show(self, ctx: &egui::Context, selected: &mut T) -> Response {
         let TabBar { tabs, id, height } = self;
-        let padding = 16.0;
+        let padding = self.height / 8.0;
 
         egui::TopBottomPanel::bottom(id)
             .exact_height(height)

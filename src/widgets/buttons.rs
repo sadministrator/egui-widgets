@@ -1,6 +1,4 @@
-use egui::{
-    pos2, Color32, NumExt, Response, Rounding, Stroke, TextStyle, Ui, Vec2, Widget, WidgetText,
-};
+use egui::{Color32, Response, Rounding, Stroke, TextStyle, Ui, Vec2, Widget, WidgetText};
 
 pub enum ButtonSize {
     Small,
@@ -216,10 +214,7 @@ impl Button {
 impl Widget for Button {
     fn ui(self, ui: &mut Ui) -> Response {
         let button_padding = match self.size {
-            ButtonSize::Small => Vec2::new(
-                ui.spacing().button_padding.x * 1.5,
-                ui.spacing().button_padding.y * 0.8,
-            ),
+            ButtonSize::Small => ui.spacing().button_padding * 1.5,
             ButtonSize::Large => ui.spacing().button_padding * 4.0,
         };
         let text_wrap_width = ui.available_width() - 2.0 * button_padding.x;
@@ -234,18 +229,10 @@ impl Widget for Button {
             text_wrap_width,
             text_style,
         );
-        let min_size = ui.spacing().interact_size;
         let mut desired_size = Vec2::ZERO;
         desired_size.x += galley.size().x;
         desired_size.y = desired_size.y.max(galley.size().y);
         desired_size += 2.0 * button_padding;
-
-        match &self.size {
-            ButtonSize::Small => desired_size = desired_size.at_least(min_size),
-            ButtonSize::Large => {
-                desired_size.y = desired_size.y.at_least(ui.spacing().interact_size.y)
-            }
-        };
 
         let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click());
 

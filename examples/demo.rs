@@ -72,6 +72,7 @@ impl eframe::App for Demo {
                         ICON_SETTINGS.to_string(),
                     ),
                 ],
+                64.0,
             )
             .show(ctx, &mut self.tab);
 
