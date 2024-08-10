@@ -1,5 +1,10 @@
 use egui::{Color32, Response, Rounding, Stroke, TextStyle, Ui, Vec2, Widget, WidgetText};
 
+use crate::utils::disable_color;
+
+const DISABLE_MULTIPLY: f32 = 0.9;
+const DISABLE_OPACITY: f32 = 0.5;
+
 pub enum ButtonSize {
     Small,
     Large,
@@ -286,7 +291,7 @@ fn derive_fill_color(variant: &ButtonVariant, inverted: bool, disabled: bool) ->
         Color32::TRANSPARENT
     } else {
         if disabled {
-            disable_color(variant.color())
+            disable_color(variant.color(), DISABLE_MULTIPLY, DISABLE_OPACITY)
         } else {
             variant.color()
         }
@@ -304,7 +309,7 @@ fn derive_stroke(variant: &ButtonVariant, inverted: bool, disabled: bool) -> Str
     }
 
     if disabled {
-        stroke.color = disable_color(stroke.color);
+        stroke.color = disable_color(stroke.color, DISABLE_MULTIPLY, 0.5);
     }
 
     stroke
@@ -318,14 +323,10 @@ fn derive_text_color(variant: &ButtonVariant, inverted: bool, disabled: bool) ->
     };
 
     if disabled {
-        color = disable_color(color);
+        color = disable_color(color, DISABLE_OPACITY, 0.5);
     }
 
     color
-}
-
-fn disable_color(color: Color32) -> Color32 {
-    color.linear_multiply(0.5)
 }
 
 fn derive_style(variant: &ButtonVariant, inverted: bool, disabled: bool) -> ButtonStyle {

@@ -1,6 +1,6 @@
 use eframe::{App, Frame};
 
-use egui::{self, Align, Color32, Layout, RichText, TextStyle, Ui, Visuals};
+use egui::{self, Align, Color32, FontDefinitions, Layout, RichText, TextStyle, Ui, Visuals};
 use egui::{vec2, CentralPanel, Context};
 use egui_material_icons::icons::*;
 
@@ -11,6 +11,7 @@ enum TabName {
     Dashboard,
     Logs,
     Settings,
+    ExitSelect,
 }
 
 fn main() {
@@ -29,11 +30,15 @@ struct Demo {
     switch_on: bool,
     settings_on: bool,
     selected: String,
+    exit_selector_show_all: bool,
+    selected_exit: Option<ExitDescriptor>,
 }
 
 impl Demo {
     fn new(ctx: &Context) -> Self {
-        egui_material_icons::initialize(ctx);
+        let mut fonts = FontDefinitions::default();
+        insert_icon_font(&mut fonts);
+        ctx.set_fonts(fonts);
 
         ctx.style_mut(|style| {
             style.spacing.item_spacing = vec2(8.0, 8.0);
@@ -46,13 +51,20 @@ impl Demo {
             switch_on: false,
             settings_on: false,
             selected: String::new(),
+            exit_selector_show_all: false,
+            selected_exit: None,
         }
     }
 }
 
 impl eframe::App for Demo {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
-        CentralPanel::default().show(ctx, |ui| {
+        let frame = egui::Frame {
+            inner_margin: egui::Margin::same(16.0),
+            fill: ctx.style().visuals.panel_fill,
+            ..Default::default()
+        };
+        CentralPanel::default().frame(frame).show(ctx, |ui| {
             TabBar::new(
                 "tab_bar",
                 vec![
@@ -70,6 +82,11 @@ impl eframe::App for Demo {
                         TabName::Settings,
                         String::from("Settings"),
                         ICON_SETTINGS.to_string(),
+                    ),
+                    TabBarItem::new(
+                        TabName::ExitSelect,
+                        String::from("Exit Select"),
+                        ICON_LOCATION_PIN.to_string(),
                     ),
                 ],
                 64.0,
@@ -191,6 +208,67 @@ impl eframe::App for Demo {
                             }),
                         ));
                     }));
+                }
+                TabName::ExitSelect => {
+                    let exits = vec![
+                        ExitDescriptor::new(
+                            "sg-sgp-04.exits.geph.io".to_owned(),
+                            "sg".to_owned(),
+                            "sgp".to_owned(),
+                            0.1,
+                            vec!["plus".to_owned()],
+                        ),
+                        ExitDescriptor::new(
+                            "us-hio-03.exits.geph.io".to_owned(),
+                            "us".to_owned(),
+                            "pdx".to_owned(),
+                            0.78,
+                            vec!["free".to_owned(), "plus".to_owned()],
+                        ),
+                        ExitDescriptor::new(
+                            "us-hio-04.exits.geph.io".to_owned(),
+                            "us".to_owned(),
+                            "pdx".to_owned(),
+                            0.78,
+                            vec!["free".to_owned(), "plus".to_owned()],
+                        ),
+                        ExitDescriptor::new(
+                            "us-hio-04.exits.geph.io".to_owned(),
+                            "us".to_owned(),
+                            "pdx".to_owned(),
+                            0.78,
+                            vec!["free".to_owned(), "plus".to_owned()],
+                        ),
+                        ExitDescriptor::new(
+                            "us-hio-05.exits.geph.io".to_owned(),
+                            "us".to_owned(),
+                            "pdx".to_owned(),
+                            0.78,
+                            vec!["free".to_owned(), "plus".to_owned()],
+                        ),
+                        ExitDescriptor::new(
+                            "us-hio-06.exits.geph.io".to_owned(),
+                            "us".to_owned(),
+                            "pdx".to_owned(),
+                            0.78,
+                            vec!["free".to_owned(), "plus".to_owned()],
+                        ),
+                        ExitDescriptor::new(
+                            "us-hio-03.exits.geph.io".to_owned(),
+                            "us".to_owned(),
+                            "pdx".to_owned(),
+                            0.99,
+                            vec!["free".to_owned(), "plus".to_owned()],
+                        ),
+                    ];
+                    let block_plus = true;
+                    let mut exit_server_list = ExitSelector::new(
+                        exits,
+                        block_plus,
+                        &mut self.exit_selector_show_all,
+                        &mut self.selected_exit,
+                    );
+                    exit_server_list.show(ui);
                 }
             }
         });
